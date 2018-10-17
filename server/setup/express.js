@@ -14,6 +14,7 @@ function setupExpress(app, next) {
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true }));
 
+  app.use("/api", require("../api"));
   app.use("/", setupRoutes(handler, nextApp));
 }
 
