@@ -14,14 +14,11 @@ async function createTables() {
     if (err) console.log(err);
 
     files.forEach(file => {
-      const fileName = file.split(".");
+      const ext = path.extname(file);
+      const name = path.basename(file, ext);
 
-      if (
-        fileName[1] === "js" &&
-        fileName[0] !== "index" &&
-        !existingTables.includes(fileName[0])
-      ) {
-        r.tableCreate(fileName[0]).run(connection);
+      if (ext === "js" && name !== "index" && !existingTables.includes(name)) {
+        r.tableCreate(name).run(connection);
       }
     });
   });

@@ -1,12 +1,16 @@
 const router = require("express").Router();
+const Timers = require("../db/tables/timers");
 
-router.get("/:userId", async (req, res) => {
+router.post("/:userId", async (req, res) => {
   const { userId } = req.params;
 
-  const r = require("rethinkdb");
-  const connection = await require("../db/connection");
+  const timer = await Timers.insertOne({ user: userId });
 
-  res.json({ userId });
+  if (timer) {
+    res.json({ user: userId, timer });
+  } else {
+    res.status(500);
+  }
 });
 
 module.exports = router;
