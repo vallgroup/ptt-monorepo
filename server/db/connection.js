@@ -1,7 +1,7 @@
 const { dbConfig } = require("../config");
 
 async function connect() {
-  r = require("rethinkdb");
+  const r = require("rethinkdb");
 
   const { host, port } = dbConfig;
 

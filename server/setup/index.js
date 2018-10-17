@@ -6,7 +6,7 @@ async function setupServer() {
   const app = express();
 
   require("./express")(app, next);
-  require("../db/connection");
+  await require("../db")();
 
   return app;
 }
