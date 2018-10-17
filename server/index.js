@@ -5,7 +5,11 @@ async function runServer() {
   const app = await setupServer();
   const { port } = appConfig;
 
-  app.listen(port, () => console.log(`App listening on port ${port}`));
+  const server = app.listen(port, () =>
+    console.log(`App listening on port ${port}`)
+  );
+
+  require("./socket")(server);
 }
 
 runServer();
