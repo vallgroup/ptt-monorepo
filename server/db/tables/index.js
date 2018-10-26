@@ -17,7 +17,7 @@ async function createTables() {
       const ext = path.extname(file);
       const name = path.basename(file, ext);
 
-      if (ext === "js" && name !== "index" && !existingTables.includes(name)) {
+      if (ext === ".js" && name !== "index" && !existingTables.includes(name)) {
         r.tableCreate(name).run(connection);
       }
     });
