@@ -1,9 +1,8 @@
-const fs = require("fs");
-const path = require("path");
+const { dbConfig } = require("../config");
+const PTTThink = require("./PTTThink");
 
 async function setup() {
-  const connection = await require("./connection");
-  await require("./tables")();
+  await PTTThink.prepare(dbConfig);
 }
 
 module.exports = setup;

@@ -4,8 +4,10 @@ function setupSocket(server) {
   io.on("connection", socket => {
     console.log("new connection");
 
+    /*
     const Timers = require("../db/tables/timers");
     Timers.listen(socket);
+    */
   });
 
   io.on("disconnect", reason => {
