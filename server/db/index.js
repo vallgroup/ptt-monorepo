@@ -4,7 +4,11 @@ const PTTThink = require("../lib/PTTThink");
 async function setup() {
   await PTTThink.prepare(dbConfig);
 
-  await PTTThink.model("timer", {});
+  const { Timer } = require("./models/Timer");
+
+  const newTimer = await Timer.insertOne({ user: "123" });
+
+  console.log(newTimer);
 }
 
 module.exports = setup;

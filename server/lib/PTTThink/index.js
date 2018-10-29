@@ -53,6 +53,7 @@ class PTTThink {
         // so they can themselves import the prepared PTTThink object
         // and leverage its' functionality
         this.Model = require("./model");
+        this.Schema = require("./schema");
 
         self.ready = true;
         return true;
@@ -95,7 +96,7 @@ class PTTThink {
     }
   }
 
-  async model(name, schema) {
+  model(name, schema) {
     // model already created, retreive it
     if (this.models[name]) {
       return this.models[name];
@@ -113,7 +114,6 @@ class PTTThink {
     }
 
     const model = new this.Model(name, schema);
-    await model.init();
 
     this.models[name] = model;
     return this.models[name];
