@@ -1,5 +1,5 @@
 const { dbConfig } = require("../config");
-const PTTThink = require("./PTTThink");
+const PTTThink = require("../lib/PTTThink");
 
 async function setup() {
   await PTTThink.prepare(dbConfig);
