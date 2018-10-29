@@ -16,6 +16,7 @@
     "fs": "^0.0.1-security",
     "helmet": "^3.14.0",
     "isomorphic-fetch": "^2.2.1",
+    "joi": "^14.0.1",
     "next": "^7.0.2",
     "path": "^0.12.7",
     "react": "^16.5.2",

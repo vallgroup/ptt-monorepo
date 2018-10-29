@@ -12,6 +12,7 @@ class PTTThink {
     autoBind(this);
 
     this.r = require("rethinkdb");
+
     this.models = {};
   }
 
@@ -32,21 +33,32 @@ class PTTThink {
     }
     this.config = { host, port, db };
 
-    this.withConnection(async ({ r, connection }) => {
+    const self = this;
+    return this.withConnection(async ({ r, connection }) => {
       try {
         const dbList = await r.dbList().run(connection);
+        const { db } = self.config;
 
-        if (dbList.includes(this.config.db)) {
-          this.ready = true;
-          return true;
-        } else {
-          const result = await r.dbCreate(this.config.db);
-          this.ready = true;
-          return true;
+        if (!dbList.includes(db)) {
+          const result = await r.dbCreate(db);
+
+          const success = result.dbs_created === 1;
+
+          if (!success) {
+            throw Error(`Failed creating db ${db}`);
+          }
         }
+
+        // import classes here as part of the preperation process
+        // so they can themselves import the prepared PTTThink object
+        // and leverage its' functionality
+        this.Model = require("./model");
+
+        self.ready = true;
+        return true;
       } catch (err) {
-        console.warn("Error setting up database", err);
-        this.ready = false;
+        console.warn("Error setting up database \n", err);
+        self.ready = false;
         return false;
       }
     });
@@ -65,7 +77,7 @@ class PTTThink {
     let connection;
     const { r, config } = this;
 
-    if (!config || !r) {
+    if (!(config && r)) {
       throw Error(
         "PTTThink must be prepared before trying to open a connection"
       );
@@ -73,14 +85,58 @@ class PTTThink {
 
     try {
       connection = await r.connect(config);
-      await process({ r, connection });
+      return await process({ r, connection });
     } catch (err) {
-      console.warn("Failed running process with connection", err);
+      console.warn("Failed running process with connection \n", err);
     } finally {
       if (connection) {
         await connection.close();
       }
     }
+  }
+
+  async model(name, schema) {
+    // model already created, retreive it
+    if (this.models[name]) {
+      return this.models[name];
+    }
+
+    // it's a new model, let's initiate one
+
+    if (typeof name !== "string") {
+      throw new Error("`PTTThink.model()` expected name param to be a string");
+    }
+    if (typeof schema !== "object") {
+      throw new Error(
+        "`PTTThink.model()` expected schema param to be an object defining a JOI schema"
+      );
+    }
+
+    const model = new this.Model(name, schema);
+    await model.init();
+
+    this.models[name] = model;
+    return this.models[name];
+  }
+
+  async tableList() {
+    const self = this;
+    return this.withConnection(async ({ r, connection }) => {
+      return await r
+        .db(self.config.db)
+        .tableList()
+        .run(connection);
+    });
+  }
+
+  async tableCreate(name) {
+    const self = this;
+    return this.withConnection(async ({ r, connection }) => {
+      return await r
+        .db(self.config.db)
+        .tableCreate(name)
+        .run(connection);
+    });
   }
 }
 
