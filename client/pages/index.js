@@ -14,6 +14,7 @@ class IndexPage extends Component {
     const socket = io.connect();
 
     socket.on("timers:new", ({ timer }) => {
+      console.log(timer);
       return this.setState({ timers: [...this.state.timers, timer] });
     });
   }

@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const Timers = require("../db/tables/timers");
+const { Timers } = require("../db/models/Timers");
 
 router.post("/:userId", async (req, res) => {
   const { userId } = req.params;

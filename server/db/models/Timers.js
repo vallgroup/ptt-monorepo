@@ -41,16 +41,14 @@ timerSchema.statics.insertOne = async function({ user }) {
   }
 };
 
-async function listen(socket) {
-  const connection = await require("../connection");
-
+timerSchema.statics.listen = async function(socket) {
   try {
-    const cursor = await r
-      .table(TABLE_NAME)
-      .changes()
-      .run(connection);
+    const cursor = await this.run(table => {
+      return table.changes();
+    });
 
     cursor.each((err, item) => {
+      console.log(item);
       if (item && item.new_val) {
         emitNewTimer({ socket, item });
       }
@@ -59,8 +57,8 @@ async function listen(socket) {
     console.log(err);
     return false;
   }
-}
+};
 
-const Timer = PTTThink.model("timer", timerSchema);
+const Timers = PTTThink.model("timers", timerSchema);
 
-module.exports = { Timer };
+module.exports = { Timers };
