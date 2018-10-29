@@ -1,13 +1,29 @@
 const autoBind = require("auto-bind");
 
+/**
+ * Our master RethinkDB class which will wrap all DB logic
+ */
 class PTTThink {
+  /**
+   * Constructor in this case is just responsible for binding functions and setting up our class variables
+   */
   constructor() {
+    // see https://www.npmjs.com/package/auto-bind
     autoBind(this);
 
     this.r = require("rethinkdb");
     this.models = {};
   }
 
+  /**
+   * Tries to set up our db with given config,
+   * must be run before PTTThink can be used
+   *
+   * @param  {String}  host
+   * @param  {Number}  port
+   * @param  {String}  [db="test"]
+   * @return {Promise} Will resolve to a boolean letting us know if the setup was successful
+   */
   async prepare({ host, port, db = "test" }) {
     if (!host || !port) {
       throw new Error(
@@ -36,6 +52,15 @@ class PTTThink {
     });
   }
 
+  /**
+   * Since node runs a single thread, we have to be careful using a single connection instance.
+   *
+   * This function should be used to wrap any process which interacts with the database
+   * to make sure that a connection is successfully opened and closed specifically for that process.
+   *
+   * @param  {Function}  process a function which is passed { r, connection }, everything needed to interact with our Rethink DB
+   * @return {Promise}
+   */
   async withConnection(process) {
     let connection;
     const { r, config } = this;
@@ -59,4 +84,7 @@ class PTTThink {
   }
 }
 
+/**
+ * @type {PTTThink}
+ */
 module.exports = new PTTThink();
