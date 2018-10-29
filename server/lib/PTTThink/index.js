@@ -20,6 +20,12 @@ class PTTThink {
    * Tries to set up our db with given config,
    * must be run before PTTThink can be used
    *
+   * eg
+   * init sequence - this should be run before PTTThink is used before anything else
+   *
+   * const PTTThink = require('PTTThink')
+   * await PTTThink.prepare()
+   *
    * @param  {String}  host
    * @param  {Number}  port
    * @param  {String}  [db="test"]
@@ -71,6 +77,12 @@ class PTTThink {
    * This function should be used to wrap any process which interacts with the database
    * to make sure that a connection is successfully opened and closed specifically for that process.
    *
+   * eg
+   *
+   * withConnection(({ r, connection }) => {
+   *  return r.table('example').do().some().chained().actions().run(connection)
+   * })
+   *
    * @param  {Function}  process a function which is passed { r, connection }, everything needed to interact with our Rethink DB
    * @return {Promise}
    */
@@ -96,6 +108,28 @@ class PTTThink {
     }
   }
 
+  /**
+   * Use this to register a model.
+   *
+   * We check that the model isnt being defined twice,
+   * that the constructor will receive the right arguments,
+   * and then create the model.
+   *
+   * eg
+   *
+   * // create the schema
+   * const exampleSchema = new PTTThink.Schema( ... )
+   *
+   * // define any static methods on the schema
+   * exampleSchema.statics.exampleFunc = function() { ... }
+   *
+   * // finally, create the model
+   * const example = PTTThink.model('example', exampleSchema)
+   *
+   * @param  {String} name   Name of the table the model will correspond to
+   * @param  {PTTThink.Schema} schema An instantiated PTTThink.Schema object
+   * @return {PTTThink.Model}         A PTTThink.Model object
+   */
   model(name, schema) {
     // model already created, retreive it
     if (this.models[name]) {
@@ -119,6 +153,11 @@ class PTTThink {
     return this.models[name];
   }
 
+  /**
+   * Get list of tables currently available in the db
+   *
+   * @return {Promise} Resolves to array of table names
+   */
   async tableList() {
     const self = this;
     return this.withConnection(async ({ r, connection }) => {
@@ -129,6 +168,12 @@ class PTTThink {
     });
   }
 
+  /**
+   * Create a new table
+   *
+   * @param  {String}  name
+   * @return {Promise} @see https://www.rethinkdb.com/api/javascript/#table_create
+   */
   async tableCreate(name) {
     const self = this;
     return this.withConnection(async ({ r, connection }) => {
