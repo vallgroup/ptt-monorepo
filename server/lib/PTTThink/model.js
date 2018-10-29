@@ -87,10 +87,10 @@ class Model {
 
   /*
    *
-   * 
+   *
    * PRIVATE FUNCTIONS
    *
-   * 
+   *
    */
 
   /**

@@ -72,10 +72,9 @@ class PTTThink {
   }
 
   /**
-   * Since node runs a single thread, we have to be careful using a single connection instance.
    *
    * This function should be used to wrap any process which interacts with the database
-   * to make sure that a connection is successfully opened and closed specifically for that process.
+   * to make sure that a connection is successfully opened first
    *
    * eg
    *
@@ -87,7 +86,6 @@ class PTTThink {
    * @return {Promise}
    */
   async withConnection(process) {
-    let connection;
     const { r, config } = this;
 
     if (!(config && r)) {
@@ -97,14 +95,13 @@ class PTTThink {
     }
 
     try {
-      connection = await r.connect(config);
-      return await process({ r, connection });
+      if (!this.connection) {
+        this.connection = await r.connect(config);
+      }
+
+      return await process({ r, connection: this.connection });
     } catch (err) {
       console.warn("Failed running process with connection \n", err);
-    } finally {
-      if (connection) {
-        await connection.close();
-      }
     }
   }
 

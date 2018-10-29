@@ -48,7 +48,6 @@ timerSchema.statics.listen = async function(socket) {
     });
 
     cursor.each((err, item) => {
-      console.log(item);
       if (item && item.new_val) {
         emitNewTimer({ socket, item });
       }
